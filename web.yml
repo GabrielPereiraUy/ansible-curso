@@ -33,12 +33,18 @@
 
   - name: Crear directorios para el sitio
     file:
-      path: /var/www/{{ sitio }}/{{ item }}
-    loop:
-      - html
-      - icons
-      - cgi-bin
-      - error
+      path: "{{ item }}"
+      recurse: yes
+      state: directory
+      owner: apache
+      group: apache
+      mode: 0755
+    with_items:
+      - /var/www/"{{ sitio }}"
+      - /var/www/"{{ sitio }}"/html
+      - /var/www/"{{ sitio }}"/icons
+      - /var/www/"{{ sitio }}"/cgi-bin
+      - /var/www/"{{ sitio }}"/error
 
   - name: Crear configuracion de virtualhost
     template:
@@ -55,18 +61,20 @@
       owner: apache
       group: apache
 
+  - name: Abro puertos en el firewall
+    firewalld:
+      service: "{{ item  }}"
+      permanent: yes
+      state: enabled
+      immediate: yes
+      zone: internal
+    with_items:
+      - http
+      - https
+
+  handlers:
   - name: Reinicio apache
     service:
       name: httpd
       state: restarted
       enabled: yes
-  
-  - name: Abro puertos en el firewall
-    firewalld:
-      name: "{{ item  }}"
-      permanent: yes
-      state: enabled
-      zone: internal
-    loop:
-      - http
-      - https

@@ -39,7 +39,7 @@
       owner: apache
       group: apache
       mode: 0755
-    with_items:
+    loop:
       - /var/www/"{{ sitio }}"
       - /var/www/"{{ sitio }}"/html
       - /var/www/"{{ sitio }}"/icons
@@ -68,7 +68,7 @@
       state: enabled
       immediate: yes
       zone: internal
-    with_items:
+    loop:
       - http
       - https
 
